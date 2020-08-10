@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.AppInterface.Companion.SUBTITLE_LOCATION
 import com.kpstv.yts.AppInterface.Companion.YIFY_BASE_URL
@@ -25,7 +26,9 @@ import com.kpstv.yts.R
 import com.kpstv.yts.data.models.Subtitle
 import com.kpstv.yts.databinding.BottomSheetSubtitlesBinding
 import com.kpstv.yts.extensions.ExtendedBottomSheetDialogFragment
-import com.kpstv.yts.extensions.utils.*
+import com.kpstv.yts.extensions.utils.AppUtils
+import com.kpstv.yts.extensions.utils.FlagUtils
+import com.kpstv.yts.extensions.utils.ZipUtility
 import com.kpstv.yts.interfaces.listener.SingleClickListener
 import com.kpstv.yts.ui.dialogs.AlertNoIconDialog
 import com.kpstv.yts.ui.helpers.InterstitialAdHelper
@@ -55,6 +58,7 @@ class BottomSheetSubtitles : ExtendedBottomSheetDialogFragment(R.layout.bottom_s
 
     @Inject
     lateinit var flagUtils: FlagUtils
+
     @Inject
     lateinit var interstitialAdHelper: InterstitialAdHelper
 
@@ -301,8 +305,8 @@ class BottomSheetSubtitles : ExtendedBottomSheetDialogFragment(R.layout.bottom_s
 
         override fun onBindViewHolder(holder: SubtitleHolder, i: Int) {
             val model = models[i]
-            GlideApp.with(context.applicationContext).load(flagUtils.getFlagUrl(model.country))
-                .into(holder.flagImage)
+
+            holder.flagImage.load(flagUtils.getFlagUrl(model.country))
 
             holder.title.text = model.text
             holder.subText.text = "${model.country} ${AppUtils.getBulletSymbol()} ${model.uploader}"

@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.view.View
 import androidx.annotation.DrawableRes
+import coil.Coil
+import coil.request.LoadRequest
+import coil.request.LoadRequestBuilder
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.kpstv.yts.data.models.response.Model
 import com.kpstv.yts.ui.fragments.GenreFragment
@@ -21,6 +24,14 @@ fun <T> lazyDeferred(block: suspend CoroutineScope.() -> T): Lazy<Deferred<T>> {
             block.invoke(this)
         }
     }
+}
+
+fun LoadRequestBuilder.execute() {
+    this.build().execute()
+}
+
+fun LoadRequest.execute() {
+    Coil.imageLoader(context).execute(this)
 }
 
 fun ArrayList<GenreFragment.LocalGenreModel>.add(

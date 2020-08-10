@@ -16,6 +16,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.request.CachePolicy
+import coil.request.LoadRequest
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -25,6 +28,7 @@ import com.kpstv.yts.AppInterface.Companion.MOVIE_ID
 import com.kpstv.yts.R
 import com.kpstv.yts.data.models.MovieShort
 import com.kpstv.yts.extensions.MovieBase
+import com.kpstv.yts.extensions.execute
 import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.extensions.utils.AppUtils.Companion.getBulletSymbol
 import com.kpstv.yts.extensions.utils.AppUtils.Companion.getImdbUrl
@@ -82,7 +86,27 @@ class CustomPagedAdapter(
                 }
             }
 
-            GlideApp.with(context.applicationContext).asBitmap().load(movie.bannerUrl)
+            LoadRequest.Builder(context.applicationContext)
+                .data(movie.bannerUrl)
+                .target(
+                    onSuccess = { drawable ->
+                        holder.mainImage.setImageDrawable(drawable)
+                        holder.itemView.shimmerFrame.hide()
+                    },
+                    onError = {
+                        Log.e("CustomPagedAdapter", "=> Glide failed for: ${movie.title}")
+                    }
+                )
+                .target { drawable ->
+                    holder.mainImage.setImageDrawable(drawable)
+                    holder.itemView.shimmerFrame.hide()
+                }
+                .networkCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .execute()
+
+          /*  Glide.with(context.applicationContext).asBitmap().load(movie.bannerUrl)
                 .listener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -106,7 +130,7 @@ class CustomPagedAdapter(
                         return true
                     }
 
-                }).into(holder.mainImage)
+                }).into(holder.mainImage)*/
             holder.mainText.text = movie.title
 
             holder.mainCard.setOnClickListener {
@@ -134,10 +158,10 @@ class CustomPagedAdapter(
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<MovieShort?> =
             object : DiffUtil.ItemCallback<MovieShort?>() {
                 override fun areItemsTheSame(oldItem: MovieShort, newItem: MovieShort) =
-                    oldItem.title == newItem.title
+                    oldItem.imdbCode == newItem.imdbCode
 
                 override fun areContentsTheSame(oldItem: MovieShort, newItem: MovieShort) =
-                    oldItem.bannerUrl == oldItem.bannerUrl
+                    oldItem == oldItem
             }
     }
 

@@ -4,11 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,8 +13,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import coil.request.LoadRequest
 import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.AppInterface.Companion.MOVIE_ID
 import com.kpstv.yts.AppInterface.Companion.handleRetrofitError
@@ -31,11 +27,11 @@ import com.kpstv.yts.data.models.TmDbMovie
 import com.kpstv.yts.databinding.ActivityFinalBinding
 import com.kpstv.yts.extensions.Permissions
 import com.kpstv.yts.extensions.YTSQuery
+import com.kpstv.yts.extensions.execute
 import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.extensions.utils.AppUtils
 import com.kpstv.yts.extensions.utils.AppUtils.Companion.CafebarToast
 import com.kpstv.yts.extensions.utils.CustomMovieLayout
-import com.kpstv.yts.extensions.utils.GlideApp
 import com.kpstv.yts.interfaces.listener.FavouriteListener
 import com.kpstv.yts.interfaces.listener.MovieListener
 import com.kpstv.yts.interfaces.listener.SuggestionListener
@@ -284,55 +280,47 @@ class FinalActivity : AppCompatActivity(), MovieListener {
     }
 
     private fun setPreviews() {
-        GlideApp.with(applicationContext).asBitmap().load(movie.background_image)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onLoadCleared(placeholder: Drawable?) {
-
-                }
-
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    binding.activityFinalPreviews.afYtPreviewImage.setImageBitmap(resource)
-                    Log.e(TAG, "Image Loaded")
-                    binding.activityFinalPreviews.afYtPreviewImage.setOnClickListener {
-                        Log.e(TAG, "OnClicked")
-                        if (::player.isInitialized) {
-                            player.loadVideo(movie.yt_trailer_id, 0f)
-                            binding.activityFinalPreviews.youtubePlayerView.visibility =
-                                View.VISIBLE
-                        } else {
-                            binding.activityFinalPreviews.afYtPreviewPlay.visibility = View.GONE
-                            binding.activityFinalPreviews.afYtPreviewProgressBar.visibility =
-                                View.VISIBLE
-                        }
-                    }
-
-                    binding.activityFinalPreviews.afYtPreview.visibility = View.VISIBLE
-                }
-            })
-
-        GlideApp.with(applicationContext).asBitmap().load(movie.medium_cover_image)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onLoadCleared(placeholder: Drawable?) {
-                }
-
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    binding.activityFinalPreviews.shimmerFrame.hide()
-
-                    binding.activityFinalPreviews.afYtBannerImage.setImageBitmap(resource)
-                    binding.activityFinalPreviews.afYtBannerImage.visibility = View.VISIBLE
-                    binding.activityFinalPreviews.afYtBannerImage.setOnClickListener {
-                        val intent = Intent(this@FinalActivity, ImageViewActivity::class.java)
-                        intent.putExtra(ImageViewActivity.IMAGE_URL, movie.large_cover_image)
-                        val options = ActivityOptions
-                            .makeSceneTransitionAnimation(
-                                this@FinalActivity,
-                                binding.activityFinalPreviews.afYtBannerImage,
-                                "banner_photo"
-                            )
-                        startActivity(intent, options.toBundle())
+        LoadRequest.Builder(this)
+            .data(movie.background_image)
+            .target { drawable ->
+                binding.activityFinalPreviews.afYtPreviewImage.setImageDrawable(drawable)
+                Log.e(TAG, "Image Loaded")
+                binding.activityFinalPreviews.afYtPreviewImage.setOnClickListener {
+                    Log.e(TAG, "OnClicked")
+                    if (::player.isInitialized) {
+                        player.loadVideo(movie.yt_trailer_id, 0f)
+                        binding.activityFinalPreviews.youtubePlayerView.visibility =
+                            View.VISIBLE
+                    } else {
+                        binding.activityFinalPreviews.afYtPreviewPlay.visibility = View.GONE
+                        binding.activityFinalPreviews.afYtPreviewProgressBar.visibility =
+                            View.VISIBLE
                     }
                 }
-            })
+                binding.activityFinalPreviews.afYtPreview.visibility = View.VISIBLE
+            }
+            .execute()
+
+        LoadRequest.Builder(this)
+            .data(movie.medium_cover_image)
+            .target { drawable ->
+                binding.activityFinalPreviews.shimmerFrame.hide()
+
+                binding.activityFinalPreviews.afYtBannerImage.setImageDrawable(drawable)
+                binding.activityFinalPreviews.afYtBannerImage.visibility = View.VISIBLE
+                binding.activityFinalPreviews.afYtBannerImage.setOnClickListener {
+                    val intent = Intent(this@FinalActivity, ImageViewActivity::class.java)
+                    intent.putExtra(ImageViewActivity.IMAGE_URL, movie.large_cover_image)
+                    val options = ActivityOptions
+                        .makeSceneTransitionAnimation(
+                            this@FinalActivity,
+                            binding.activityFinalPreviews.afYtBannerImage,
+                            "banner_photo"
+                        )
+                    startActivity(intent, options.toBundle())
+                }
+            }
+            .execute()
         binding.activityFinalPreviews.root.visibility = View.VISIBLE
     }
 

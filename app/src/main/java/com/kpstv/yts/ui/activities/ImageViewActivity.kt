@@ -2,9 +2,9 @@ package com.kpstv.yts.ui.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.kpstv.yts.databinding.ActivityImageViewBinding
-import com.kpstv.yts.extensions.utils.GlideApp
+import coil.api.load
 import com.kpstv.common_moviesy.extensions.viewBinding
+import com.kpstv.yts.databinding.ActivityImageViewBinding
 
 class ImageViewActivity : AppCompatActivity() {
 
@@ -22,7 +22,6 @@ class ImageViewActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        GlideApp.with(applicationContext).load(intent.extras?.getString(IMAGE_URL))
-            .into(binding.photoView)
+        binding.photoView.load(intent.extras?.getString(IMAGE_URL))
     }
 }

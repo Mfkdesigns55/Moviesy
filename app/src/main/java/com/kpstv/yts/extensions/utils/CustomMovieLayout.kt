@@ -3,8 +3,6 @@ package com.kpstv.yts.extensions.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,8 +13,7 @@ import android.widget.RelativeLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import coil.request.LoadRequest
 import com.kpstv.yts.AppInterface.Companion.MOVIE_ID
 import com.kpstv.yts.AppInterface.Companion.TMDB_IMAGE_PREFIX
 import com.kpstv.yts.AppInterface.Companion.YTS_BASE_URL
@@ -25,6 +22,7 @@ import com.kpstv.yts.R
 import com.kpstv.yts.data.models.MovieShort
 import com.kpstv.yts.data.models.TmDbMovie
 import com.kpstv.yts.extensions.MovieBase
+import com.kpstv.yts.extensions.execute
 import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.extensions.utils.AppUtils.Companion.refactorYTSUrl
 import com.kpstv.yts.interfaces.listener.MoviesListener
@@ -128,7 +126,7 @@ class CustomMovieLayout(private val context: Context, private val titleText: Str
         base = MovieBase.YTS
 
         val listener = object : MoviesListener {
-            override fun onStarted() { }
+            override fun onStarted() {}
 
             override fun onFailure(e: Exception) {
                 handleRetrofitError(context, e)
@@ -267,19 +265,13 @@ class CustomMovieLayout(private val context: Context, private val titleText: Str
                 imageUri = refactorYTSUrl(imageUri)
             }
 
-            GlideApp.with(context.applicationContext).asBitmap().load(imageUri)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        holder.mainImage.setImageBitmap(resource)
-                        holder.itemView.shimmerFrame.hide()
-                    }
-                })
+            LoadRequest.Builder(context.applicationContext)
+                .data(imageUri)
+                .target { drawable ->
+                    holder.mainImage.setImageDrawable(drawable)
+                    holder.itemView.shimmerFrame.hide()
+                }
+                .execute()
 
             holder.mainText.text = movie.title
 

@@ -2,19 +2,16 @@ package com.kpstv.yts.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import coil.request.LoadRequest
 import com.kpstv.yts.R
-import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.data.models.response.Model
+import com.kpstv.yts.extensions.execute
+import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.extensions.utils.AppUtils
-import com.kpstv.yts.extensions.utils.GlideApp
 import kotlinx.android.synthetic.main.item_watchlist.view.*
 
 class WatchlistAdapter(
@@ -36,17 +33,14 @@ class WatchlistAdapter(
     override fun onBindViewHolder(holder: WatchlistHolder, i: Int) {
         val model = models[i]
 
-        GlideApp.with(context).asBitmap().load(model.imageUrl).into(object: CustomTarget<Bitmap>(){
-            override fun onLoadCleared(placeholder: Drawable?) {
-
-            }
-
-            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                holder.image.setImageBitmap(resource)
+        LoadRequest.Builder(context.applicationContext)
+            .data(model.imageUrl)
+            .target { drawable ->
+                holder.image.setImageDrawable(drawable)
                 holder.itemView.shimmerFrame.hideShimmer()
                 holder.itemView.shimmerFrame.hide()
             }
-        })
+            .execute()
 
         holder.title.text = model.title
         holder.subTitle.text = "${model.year} ${AppUtils.getBulletSymbol()} ${model.runtime} mins"

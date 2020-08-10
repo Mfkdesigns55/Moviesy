@@ -5,11 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.kpstv.yts.R
 import com.kpstv.yts.data.models.Torrent
 import com.kpstv.yts.databinding.ItemTorrentDownload1Binding
-import com.kpstv.yts.extensions.utils.GlideApp
-import kotlinx.android.synthetic.main.item_torrent_download_1.view.*
 
 class JobQueueAdapter(
     private val context: Context,
@@ -31,7 +30,7 @@ class JobQueueAdapter(
         val model = models[i]
 
         holder.binding.itemTitle.text = model.title
-        GlideApp.with(context.applicationContext).load(model.banner_url).into(holder.binding.itemImage)
+        holder.binding.itemImage.load(model.banner_url)
 
         holder.binding.itemClose.setOnClickListener {
             listener.onClick(model, i)

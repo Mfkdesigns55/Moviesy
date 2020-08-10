@@ -42,7 +42,7 @@ private object LibraryVersion {
     const val LOTTIE = "3.4.1"
     const val GOOGLE_ADS = "19.3.0"
     const val WORK_MANAGER = "2.4.0"
-    const val COIL = "0.9.5"
+    const val COIL = "0.11.0"
 }
 
 object LibraryDependency {

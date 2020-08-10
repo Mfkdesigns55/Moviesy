@@ -2,8 +2,6 @@ package com.kpstv.yts.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.*
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -14,9 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import coil.api.load
 import com.danimahardhika.cafebar.CafeBar
+import com.kpstv.common_moviesy.extensions.Coroutines
+import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.AppInterface.Companion.EMPTY_QUEUE
 import com.kpstv.yts.AppInterface.Companion.MODEL_UPDATE
 import com.kpstv.yts.AppInterface.Companion.PAUSE_JOB
@@ -29,17 +28,14 @@ import com.kpstv.yts.R
 import com.kpstv.yts.adapters.JobQueueAdapter
 import com.kpstv.yts.adapters.PauseAdapter
 import com.kpstv.yts.data.db.repository.PauseRepository
-import com.kpstv.common_moviesy.extensions.Coroutines
-import com.kpstv.yts.extensions.utils.AppUtils
-import com.kpstv.yts.extensions.utils.AppUtils.Companion.getMagnetUrl
 import com.kpstv.yts.data.models.Torrent
 import com.kpstv.yts.data.models.TorrentJob
 import com.kpstv.yts.data.models.response.Model
 import com.kpstv.yts.databinding.ActivityDownloadBinding
-import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.extensions.hide
 import com.kpstv.yts.extensions.show
-import com.kpstv.yts.extensions.utils.GlideApp
+import com.kpstv.yts.extensions.utils.AppUtils
+import com.kpstv.yts.extensions.utils.AppUtils.Companion.getMagnetUrl
 import com.kpstv.yts.receivers.CommonBroadCast
 import com.kpstv.yts.ui.dialogs.AlertNoIconDialog
 import com.kpstv.yts.ui.viewmodels.MainViewModel
@@ -212,28 +208,18 @@ class DownloadActivity : AppCompatActivity() {
                 torrentJob
             )
 
-        binding.itemTorrentDownload.itemDownloadSpeed.text = formatDownloadSpeed(torrentJob.downloadSpeed)
+        binding.itemTorrentDownload.itemDownloadSpeed.text =
+            formatDownloadSpeed(torrentJob.downloadSpeed)
         binding.itemTorrentDownload.itemProgressBar.progress = torrentJob.progress
-        binding.itemTorrentDownload.itemTotalSize.text = AppUtils.getSizePretty(torrentJob.totalSize)
+        binding.itemTorrentDownload.itemTotalSize.text =
+            AppUtils.getSizePretty(torrentJob.totalSize)
 
         pendingJobUpdate(intent)
 
         if (!justUpdateStatus) {
             currentModel = torrentJob
 
-            GlideApp.with(applicationContext).asBitmap().load(currentModel.bannerUrl).into(
-                object : CustomTarget<Bitmap>() {
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        binding.itemTorrentDownload.itemImage.setImageBitmap(resource)
-                    }
-                }
-            )
+            binding.itemTorrentDownload.itemImage.load(currentModel.bannerUrl)
 
             binding.itemTorrentDownload.itemTitle.text = currentModel.title
 

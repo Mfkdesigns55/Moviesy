@@ -2,6 +2,7 @@ package com.kpstv.shimmer
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -42,6 +43,12 @@ class ShimmerImageView : CardView {
         )
         a.recycle()
         init(context)
+    }
+
+    fun setImage(drawable: Drawable) {
+        imageView.setImageDrawable(drawable)
+        shimmerFrameLayout.hideShimmer()
+        invalidate()
     }
 
     fun setImage(bm: Bitmap) {

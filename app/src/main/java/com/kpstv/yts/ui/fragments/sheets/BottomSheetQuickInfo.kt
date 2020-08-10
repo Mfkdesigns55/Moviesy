@@ -1,22 +1,19 @@
 package com.kpstv.yts.ui.fragments.sheets
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import coil.request.LoadRequest
+import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.R
 import com.kpstv.yts.data.models.MovieShort
 import com.kpstv.yts.data.models.response.Model
 import com.kpstv.yts.databinding.BottomSheetQuickinfoBinding
 import com.kpstv.yts.extensions.ExtendedBottomSheetDialogFragment
+import com.kpstv.yts.extensions.execute
 import com.kpstv.yts.extensions.utils.AppUtils.Companion.getBulletSymbol
 import com.kpstv.yts.extensions.utils.CustomBottomItem
-import com.kpstv.yts.extensions.utils.GlideApp
-import com.kpstv.common_moviesy.extensions.viewBinding
 import com.kpstv.yts.ui.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import es.dmoral.toasty.Toasty
@@ -33,14 +30,12 @@ class BottomSheetQuickInfo : ExtendedBottomSheetDialogFragment(R.layout.bottom_s
 
         val movie = arguments?.getSerializable("model") as MovieShort
 
-        GlideApp.with(requireContext().applicationContext).asBitmap().load(movie.bannerUrl)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onLoadCleared(placeholder: Drawable?) {}
-
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    binding.shimmerImageView.setImage(resource)
-                }
-            })
+        LoadRequest.Builder(requireContext())
+            .data(movie.bannerUrl)
+            .target { drawable ->
+                binding.shimmerImageView.setImage(drawable)
+            }
+            .execute()
 
         binding.itemTitle.text = movie.title
         binding.itemSubText.text = "${movie.year} ${getBulletSymbol()} ${movie.runtime} mins"

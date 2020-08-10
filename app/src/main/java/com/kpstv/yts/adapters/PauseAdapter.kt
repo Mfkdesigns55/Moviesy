@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.api.load
 import com.kpstv.yts.R
-import com.kpstv.yts.ui.activities.DownloadActivity.Companion.calculateCurrentSize
 import com.kpstv.yts.data.models.response.Model
 import com.kpstv.yts.extensions.utils.AppUtils
+import com.kpstv.yts.ui.activities.DownloadActivity.Companion.calculateCurrentSize
 import kotlinx.android.synthetic.main.item_torrent_download.view.*
 
 class PauseAdapter(
@@ -31,7 +31,7 @@ class PauseAdapter(
     override fun onBindViewHolder(holder: PauseHolder, i: Int) {
         val model = models[i]
 
-        Glide.with(context).load(model.job.bannerUrl).into(holder.itemView.item_image)
+        holder.itemView.item_image.load(model.job.bannerUrl)
 
         holder.itemView.item_title.text = model.job.title
         holder.itemView.item_status.text = "Paused"
